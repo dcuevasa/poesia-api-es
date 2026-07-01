@@ -22,11 +22,12 @@ El archivo [scripts/generar_db.py](scripts/generar_db.py) ahora:
 
 - importa las librerías necesarias para scraping y serialización JSON;
 - hace scraping real de poemas de dominio público en español desde Wikisource;
-- genera una colección inicial con obras de Gustavo Adolfo Bécquer y José Martí;
+- usa un catálogo curado de fuentes para priorizar legalidad, estabilidad y limpieza del texto;
+- genera una colección ampliada con obras de Gustavo Adolfo Bécquer y José Martí;
 - guarda el resultado en [api/poemas.json](api/poemas.json) con codificación UTF-8;
 - usa `ensure_ascii=False` para preservar correctamente caracteres como tildes y eñes.
 
-La fuente elegida es Wikisource en español, que publica textos de dominio público y expone HTML estático suficientemente estable para una extracción simple.
+La fuente elegida es Wikisource en español, que publica textos de dominio público y expone HTML estático suficientemente estable para una extracción simple. El enfoque actual no intenta recorrer todo el sitio de forma indiscriminada: mantiene una lista curada de poemas y reglas de limpieza para evitar introducir ruido editorial en la base de datos.
 
 ## Requisitos
 
@@ -115,9 +116,18 @@ Y cada poeta se guarda con esta forma:
 
 Esto facilita consumir el contenido desde la app Android sin transformaciones adicionales respecto a sus modelos.
 
+## Estado actual de la colección
+
+La base generada incluye actualmente poemas públicos de:
+
+- Gustavo Adolfo Bécquer
+- José Martí
+
+El catálogo inicial ya contiene poemas breves y poemas largos, y está preparado para crecer añadiendo nuevas URLs públicas verificadas dentro del arreglo `POEMAS_FUENTE`.
+
 ## Próximos pasos
 
-1. Añadir más poemas públicos desde la misma fuente con reglas de extracción por sitio.
+1. Añadir más autores de dominio público con páginas verificadas en Wikisource.
 2. Incorporar validación del esquema JSON antes de escribir archivos.
-3. Añadir más metadatos, por ejemplo `sourceUrl` o `sourceSite`.
+3. Añadir una fuente secundaria legal para ampliar cobertura si la estructura HTML es estable.
 4. Exponer [api/poemas.json](api/poemas.json) y [api/poetas.json](api/poetas.json) mediante un hosting estático.

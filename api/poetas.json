@@ -1,11 +1,121 @@
 [
   {
+    "name": "Agustina Andrade",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Andrés Bello",
+    "language": "SPANISH",
+    "poemCount": 2
+  },
+  {
+    "name": "Andrés Eloy Blanco",
+    "language": "SPANISH",
+    "poemCount": 8
+  },
+  {
+    "name": "Baltasar de Cepeda",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Baltasar del Alcázar",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Catulo",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Clemente Althaus",
+    "language": "SPANISH",
+    "poemCount": 3
+  },
+  {
+    "name": "Estanislao del Campo",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Evaristo Carriego",
+    "language": "SPANISH",
+    "poemCount": 3
+  },
+  {
     "name": "Gustavo Adolfo Bécquer",
     "language": "SPANISH",
     "poemCount": 1
   },
   {
-    "name": "José Martí",
+    "name": "Hernando de Acuña",
+    "language": "SPANISH",
+    "poemCount": 2
+  },
+  {
+    "name": "Ignacio María de Acosta",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "José Cadalso",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "José María Cantilo",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Juan Arolas",
+    "language": "SPANISH",
+    "poemCount": 3
+  },
+  {
+    "name": "Juan Bautista Aguirre",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Manuel Acuña",
+    "language": "SPANISH",
+    "poemCount": 2
+  },
+  {
+    "name": "Margarita Abella Caprile",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Miguel Antonio Caro",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Pedro Antonio de Alarcón",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Pedro Calderón de la Barca",
+    "language": "SPANISH",
+    "poemCount": 4
+  },
+  {
+    "name": "Rafael Barrett",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Rodrigo Caro",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Ruđer Bošković",
     "language": "SPANISH",
     "poemCount": 1
   }

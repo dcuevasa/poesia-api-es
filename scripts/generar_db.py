@@ -1,12 +1,21 @@
 import json
 import os
 import re
+import sys
+import time
 from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
 from requests import RequestException
+
+# Author names scraped from Wikisource can contain characters outside
+# Windows' default console codepage (e.g. "Ruđer Bošković"). Force UTF-8 on
+# stdout/stderr so a progress print never crashes the whole run.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 
 HEADERS = {
@@ -16,10 +25,13 @@ HEADERS = {
 BASE_URL = "https://es.wikisource.org"
 
 CATEGORIA_POESIAS_POR_AUTOR_URL = "https://es.wikisource.org/wiki/Categor%C3%ADa:Poes%C3%ADas_por_autor"
-MAX_PAGINAS_CATEGORIA = int(os.getenv("POESIA_MAX_PAGINAS_CATEGORIA", "2"))
-MAX_AUTORES = int(os.getenv("POESIA_MAX_AUTORES", "80"))
-MAX_OBRAS_POR_AUTOR = int(os.getenv("POESIA_MAX_OBRAS_POR_AUTOR", "8"))
-MAX_POEMAS_POR_OBRA = int(os.getenv("POESIA_MAX_POEMAS_POR_OBRA", "80"))
+MAX_PAGINAS_CATEGORIA = int(os.getenv("POESIA_MAX_PAGINAS_CATEGORIA", "5"))
+MAX_AUTORES = int(os.getenv("POESIA_MAX_AUTORES", "250"))
+MAX_OBRAS_POR_AUTOR = int(os.getenv("POESIA_MAX_OBRAS_POR_AUTOR", "20"))
+MAX_POEMAS_POR_OBRA = int(os.getenv("POESIA_MAX_POEMAS_POR_OBRA", "120"))
+# Seconds to wait between requests — Wikisource is a shared, donation-funded
+# service; scraping hundreds of authors politely means never hammering it.
+RATE_LIMIT_SEGUNDOS = float(os.getenv("POESIA_RATE_LIMIT_SEGUNDOS", "0.25"))
 
 PALABRAS_CLAVE_POESIA = (
     "poema",
@@ -76,6 +88,15 @@ PATRONES_DESCARTADOS = (
     "versión para imprimir",
 )
 
+# Fragmentos de la plantilla de licencia/traducción de Wikisource: pueden
+# aparecer en cualquier posición de la línea (a veces tras un ". " previo),
+# así que se buscan como substring, no solo como prefijo.
+FRAGMENTOS_DESCARTADOS_EN_CUALQUIER_POSICION = (
+    "esto es aplicable en todo el mundo",
+    "la traducción de la obra puede no estar en dominio público",
+    "obras en dominio público. traducción de",
+)
+
 PATRON_ROMANO = re.compile(r"^[IVXLCDM]+$")
 PATRON_TITULO_RIMA = re.compile(r"^Rima [IVXLCDM]+$")
 PATRON_POEMA_SECCIONAL = re.compile(r".+/[IVXLCDM]+$")
@@ -85,6 +106,8 @@ PATRON_CATEGORIA_POESIAS_AUTOR = re.compile(r"^Poesías de (.+)$")
 def obtener_soup(url):
     respuesta = requests.get(url, headers=HEADERS, timeout=20)
     respuesta.raise_for_status()
+    if RATE_LIMIT_SEGUNDOS > 0:
+        time.sleep(RATE_LIMIT_SEGUNDOS)
     return BeautifulSoup(respuesta.text, "html.parser")
 
 
@@ -172,10 +195,25 @@ def es_enlace_poetico(texto, href):
     return False
 
 
+def autor_marcado_no_libre(soup):
+    """Wikisource etiqueta cada página de autor con su propia verificación de
+    dominio público (categorías 'DP-Autores-NN' cuando sí lo es, 'DP-NO'
+    cuando no). Confiamos en esa curación en vez de asumir que toda la
+    categoría "Poesías por autor" es automáticamente libre."""
+    categorias = [
+        enlace.get_text(strip=True)
+        for enlace in soup.select("div#mw-normal-catlinks a")
+    ]
+    return "DP-NO" in categorias
+
+
 def descubrir_obras_poeticas(autor):
     try:
         soup = obtener_soup(autor["author_url"])
     except RequestException:
+        return []
+    if autor_marcado_no_libre(soup):
+        print(f"  (omitido: {autor['author']} esta marcado DP-NO en Wikisource)", flush=True)
         return []
     contenedor = soup.select_one("div.mw-parser-output") or soup.select_one("div#mw-content-text")
     if contenedor is None:
@@ -302,14 +340,11 @@ def descubrir_poemas_de_obra(obra):
     ]
 
 
-def descubrir_poemas():
-    poemas_descubiertos = []
-
-    for autor in descubrir_autores():
-        for obra in descubrir_obras_poeticas(autor):
-            poemas_descubiertos.extend(descubrir_poemas_de_obra(obra))
-
-    return poemas_descubiertos
+def descubrir_poemas_de_autor(autor):
+    fuentes = []
+    for obra in descubrir_obras_poeticas(autor):
+        fuentes.extend(descubrir_poemas_de_obra(obra))
+    return fuentes
 
 
 def limpiar_linea(linea):
@@ -324,6 +359,8 @@ def limpiar_linea(linea):
     if linea_normalizada in FRASES_DESCARTADAS:
         return None
     if any(linea_normalizada.startswith(prefijo) for prefijo in PATRONES_DESCARTADOS):
+        return None
+    if any(fragmento in linea_normalizada for fragmento in FRAGMENTOS_DESCARTADOS_EN_CUALQUIER_POSICION):
         return None
     if linea_normalizada.startswith("de ") and len(linea_limpia.split()) <= 4:
         return None
@@ -415,6 +452,9 @@ def extraer_lineas_poema(url):
         ".noprint",
         ".sister-wikipedia",
         ".metadata",
+        # Widget de licencia ("Public domain" / "false" / "Más información...")
+        # que Wikisource incrusta en paginas basadas en un archivo escaneado.
+        ".licenseContainer",
     ]:
         for nodo in contenido.select(selector):
             nodo.decompose()
@@ -427,32 +467,54 @@ def extraer_lineas_poema(url):
     return lineas
 
 
-def hacer_scraping_poemas():
-    """Extrae poemas de dominio publico en espanol desde Wikisource."""
+def extraer_poema_de_fuente(fuente):
+    lineas = extraer_lineas_poema(fuente["url"])
+    if len(lineas) < 3:
+        return None
+
+    titulo = fuente["title"]
+    if PATRON_ROMANO.match(titulo):
+        titulo = lineas[0]
+
+    return {
+        "title": titulo,
+        "author": fuente["author"],
+        "lines": lineas,
+        "language": "SPANISH",
+    }
+
+
+def hacer_scraping_poemas(guardar_checkpoint=None, autores_por_checkpoint=10):
+    """Extrae poemas de dominio publico en espanol desde Wikisource, autor por
+    autor. Si se entrega guardar_checkpoint, se invoca cada
+    `autores_por_checkpoint` autores para no perder el avance ante un corte,
+    error de red o de codificacion a mitad de una corrida larga."""
     poemas = []
+    autores = descubrir_autores()
+    print(f"Autores descubiertos: {len(autores)}", flush=True)
 
-    for fuente in descubrir_poemas():
+    for indice, autor in enumerate(autores, start=1):
+        poemas_autor = []
         try:
-            lineas = extraer_lineas_poema(fuente["url"])
+            for fuente in descubrir_poemas_de_autor(autor):
+                try:
+                    poema = extraer_poema_de_fuente(fuente)
+                except (RequestException, ValueError):
+                    continue
+                if poema is not None:
+                    poemas_autor.append(poema)
         except RequestException:
-            continue
-        except ValueError:
-            continue
-        if len(lineas) < 3:
-            continue
+            pass
 
-        titulo = fuente["title"]
-        if PATRON_ROMANO.match(titulo):
-            titulo = lineas[0]
-
-        poemas.append(
-            {
-                "title": titulo,
-                "author": fuente["author"],
-                "lines": lineas,
-                "language": "SPANISH",
-            }
+        poemas.extend(poemas_autor)
+        print(
+            f"[{indice}/{len(autores)}] {autor['author']}: "
+            f"{len(poemas_autor)} poema(s) encontrados (total acumulado: {len(poemas)})",
+            flush=True,
         )
+
+        if guardar_checkpoint and indice % autores_por_checkpoint == 0:
+            guardar_checkpoint(poemas)
 
     return sorted(poemas, key=lambda poema: (poema["author"], poema["title"]))
 
@@ -492,19 +554,43 @@ def cargar_json_existente(ruta):
     return json.loads(contenido)
 
 
+def combinar_con_existentes(poemas_nuevos, poemas_existentes):
+    """Une lo recién scrapeado con lo ya guardado, sin perder nada de una
+    corrida anterior si esta vez la fuente falla o cambia temporalmente."""
+    por_clave = {
+        (poema["author"].strip().lower(), poema["title"].strip().lower()): poema
+        for poema in poemas_existentes
+    }
+    for poema in poemas_nuevos:
+        clave = (poema["author"].strip().lower(), poema["title"].strip().lower())
+        por_clave[clave] = poema
+
+    return sorted(por_clave.values(), key=lambda poema: (poema["author"], poema["title"]))
+
+
 def main():
-    poemas = hacer_scraping_poemas()
     base_dir = Path(__file__).resolve().parent
     ruta_poemas = base_dir / "../api/poemas.json"
     ruta_poetas = base_dir / "../api/poetas.json"
+    poemas_existentes = cargar_json_existente(ruta_poemas)
 
-    if not poemas:
-        poemas = cargar_json_existente(ruta_poemas)
+    def guardar_checkpoint(poemas_parciales):
+        combinados = combinar_con_existentes(poemas_parciales, poemas_existentes)
+        guardar_json(combinados, ruta_poemas)
+        guardar_json(procesar_poetas(combinados), ruta_poetas)
+        print(f"  -> checkpoint guardado: {len(combinados)} poemas en total", flush=True)
 
+    poemas_nuevos = hacer_scraping_poemas(guardar_checkpoint=guardar_checkpoint)
+
+    poemas = combinar_con_existentes(poemas_nuevos, poemas_existentes)
     poetas = procesar_poetas(poemas)
 
     guardar_json(poemas, ruta_poemas)
     guardar_json(poetas, ruta_poetas)
+
+    print(f"Poemas nuevos/actualizados en esta corrida: {len(poemas_nuevos)}")
+    print(f"Total de poemas tras combinar: {len(poemas)}")
+    print(f"Total de poetas tras combinar: {len(poetas)}")
 
 
 if __name__ == '__main__':

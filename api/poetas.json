@@ -1,6 +1,21 @@
 [
   {
+    "name": "Adelardo López de Ayala",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
     "name": "Agustina Andrade",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Alberto Lista",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Alfredo Espino",
     "language": "SPANISH",
     "poemCount": 1
   },
@@ -12,7 +27,17 @@
   {
     "name": "Andrés Eloy Blanco",
     "language": "SPANISH",
-    "poemCount": 8
+    "poemCount": 16
+  },
+  {
+    "name": "Antonia Díaz Fernández de Lamarque",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Antonio Machado",
+    "language": "SPANISH",
+    "poemCount": 5
   },
   {
     "name": "Baltasar de Cepeda",
@@ -25,7 +50,7 @@
     "poemCount": 1
   },
   {
-    "name": "Catulo",
+    "name": "Carlos Guido y Spano",
     "language": "SPANISH",
     "poemCount": 1
   },
@@ -45,6 +70,26 @@
     "poemCount": 3
   },
   {
+    "name": "Federico García Lorca",
+    "language": "SPANISH",
+    "poemCount": 9
+  },
+  {
+    "name": "Fernán González de Eslava",
+    "language": "SPANISH",
+    "poemCount": 4
+  },
+  {
+    "name": "Francisco de Figueroa",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Fray Luis de León",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
     "name": "Gustavo Adolfo Bécquer",
     "language": "SPANISH",
     "poemCount": 1
@@ -60,12 +105,52 @@
     "poemCount": 1
   },
   {
+    "name": "Jorge Isaacs",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Jorge Manrique",
+    "language": "SPANISH",
+    "poemCount": 14
+  },
+  {
     "name": "José Cadalso",
     "language": "SPANISH",
     "poemCount": 1
   },
   {
+    "name": "José Marchena",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "José Martí",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
     "name": "José María Cantilo",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "José María Gabriel y Galán",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "José María Heredia",
+    "language": "SPANISH",
+    "poemCount": 4
+  },
+  {
+    "name": "José de Espronceda",
+    "language": "SPANISH",
+    "poemCount": 2
+  },
+  {
+    "name": "Jovellanos",
     "language": "SPANISH",
     "poemCount": 1
   },
@@ -80,9 +165,64 @@
     "poemCount": 1
   },
   {
+    "name": "Juan Bautista Delgado",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Juan Esteban Fagetti",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Juan Pablo Forner",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Juan de la Cruz",
+    "language": "SPANISH",
+    "poemCount": 4
+  },
+  {
+    "name": "Julio Flórez",
+    "language": "SPANISH",
+    "poemCount": 3
+  },
+  {
+    "name": "Leconte de Lisle",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Leopoldo Lugones",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Lope de Vega",
+    "language": "SPANISH",
+    "poemCount": 2
+  },
+  {
+    "name": "Luis de Góngora y Argote",
+    "language": "SPANISH",
+    "poemCount": 3
+  },
+  {
     "name": "Manuel Acuña",
     "language": "SPANISH",
     "poemCount": 2
+  },
+  {
+    "name": "Manuel José de Lavardén",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Manuel Machado",
+    "language": "SPANISH",
+    "poemCount": 1
   },
   {
     "name": "Margarita Abella Caprile",
@@ -93,6 +233,21 @@
     "name": "Miguel Antonio Caro",
     "language": "SPANISH",
     "poemCount": 1
+  },
+  {
+    "name": "Miguel Hernández",
+    "language": "SPANISH",
+    "poemCount": 1
+  },
+  {
+    "name": "Mihai Eminescu",
+    "language": "SPANISH",
+    "poemCount": 2
+  },
+  {
+    "name": "Nicolás Fernández de Moratín",
+    "language": "SPANISH",
+    "poemCount": 3
   },
   {
     "name": "Pedro Antonio de Alarcón",
@@ -115,8 +270,23 @@
     "poemCount": 1
   },
   {
+    "name": "Rubén Darío",
+    "language": "SPANISH",
+    "poemCount": 4
+  },
+  {
     "name": "Ruđer Bošković",
     "language": "SPANISH",
     "poemCount": 1
+  },
+  {
+    "name": "Salvador Díaz Mirón",
+    "language": "SPANISH",
+    "poemCount": 3
+  },
+  {
+    "name": "Vicente Huidobro",
+    "language": "SPANISH",
+    "poemCount": 6
   }
 ]
